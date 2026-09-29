@@ -2,11 +2,11 @@
 
 # Wi-Fi Direct 源码系列索引：hostap / wpa_supplicant 2.12
 
-> 摘要：按真实运行顺序索引 01～13 篇，从实验环境、启动初始化、control path、Device Discovery 到 Group 生命周期。
+> 摘要：按真实运行顺序索引 01～15 篇，从实验环境、P2P 控制与 Group 生命周期，一直补齐 Linux Wireless 控制面和普通 IP 数据 TX/RX。
 
 [TOC]
 
-本索引只承担系列导航。各编号文章保持单一主线，不在前篇提前展开后篇机制。源码统一采用 hostap 2.12 `hostap_2_12`。[S1](#source-s1)
+本索引只承担系列导航。各编号文章保持单一主线，不在前篇提前展开后篇机制。01～13 的 P2P userspace 主线统一采用 hostap 2.12 `hostap_2_12`；14～15 延续同一 userspace 基线，并在进入 Linux Wireless 后明确使用单独的 kernel 阅读基线。[S1](#source-s1)
 
 ## 系列导航
 
@@ -25,6 +25,8 @@
 | 11 | [Group Runtime / Data Path](11-group-runtime.md) | `P2P-GROUP-STARTED` | IP/route ready |
 | 12 | [Group Teardown](12-group-teardown.md) | `P2P_GROUP_REMOVE` | active Group teardown 完成 |
 | 13 | [Persistent Group / Invitation](13-persistent-group.md) | `P2P_INVITE persistent=<id>` | reinvocation 回到 Group Started |
+| 14 | [Linux Wireless 控制面](14-kernel-wireless-control-path.md) | P2P Listen / Action Frame | ROC、Management Frame TX/RX 与异步 event 闭环 |
+| 15 | [Group 数据面 TX/RX](15-group-data-plane-tx-rx.md) | IP/route ready 后的 P2P Group netdev | 对端 Socket 收到普通 TCP/UDP payload |
 
 ## 按关键符号索引
 
@@ -40,6 +42,8 @@
 - Runtime：[Group Interface](11-group-runtime.md#idx-group-iface)
 - Teardown：[`wpas_p2p_group_remove()`](12-group-teardown.md#idx-remove)
 - Persistent Group：[`wpas_p2p_store_persistent_group()`](13-persistent-group.md#idx-store)
+- Kernel control：[`wpas_start_listen()`](14-kernel-wireless-control-path.md#idx-listen-entry) · [`NL80211_CMD_FRAME`](14-kernel-wireless-control-path.md#idx-action-driver)
+- Group data plane：[`ieee80211_subif_start_xmit()`](15-group-data-plane-tx-rx.md#idx-xmit) · [`netif_receive_skb()`](15-group-data-plane-tx-rx.md#idx-local-stack)
 
 ## 资料来源
 
@@ -48,4 +52,4 @@
 - 版本：[`hostap_2_12` / `831364bf02710ad09c2f27d3efa92abeeb5634c0`](https://chromium.googlesource.com/chromiumos/third_party/hostap/+/refs/tags/hostap_2_12)
 - 来源：[canonical hostap.git](https://git.w1.fi/hostap.git)
 - 使用位置：系列导航与源码基线
-- 支撑内容：01～13 全系列采用统一 hostap/wpa_supplicant 2.12 source baseline。
+- 支撑内容：01～15 的 userspace/P2P 部分采用统一 hostap/wpa_supplicant 2.12 source baseline；14～15 的 Linux Wireless 部分在各篇中单独声明内核阅读基线。

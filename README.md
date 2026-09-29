@@ -458,7 +458,14 @@ wifi-direct/
 │   ├── 11-group-runtime.md
 │   ├── 12-group-teardown.md
 │   ├── 13-persistent-group.md
-│   └── wifi_direct_research_execution_plan.md
+│   ├── 14-kernel-wireless-control-path.md
+│   ├── 15-group-data-plane-tx-rx.md
+│
+├── source-reading/
+│   ├── README.md
+│   ├── SOURCE-INDEX.md
+│   ├── fetch-linux-master.sh
+│   └── hostap-2.12-relevant/
 │
 └── .github/workflows/
     ├── ci.yml
@@ -673,8 +680,10 @@ D-Bus 更适合后续分析 NetworkManager、桌面网络管理程序或真实 L
 | 11 | [Group Runtime / Data Path](docs/11-group-runtime.md) |
 | 12 | [Group Teardown](docs/12-group-teardown.md) |
 | 13 | [Persistent Group / Invitation](docs/13-persistent-group.md) |
+| 14 | [Linux Wireless 控制面：ROC 与 Management Frame TX/RX](docs/14-kernel-wireless-control-path.md) |
+| 15 | [P2P Group 普通 IP 数据面 TX/RX](docs/15-group-data-plane-tx-rx.md) |
 
-研究执行计划：[docs/wifi_direct_research_execution_plan.md](docs/wifi_direct_research_execution_plan.md)
+教程 14～15 的配套源码阅读入口：[`source-reading/SOURCE-INDEX.md`](source-reading/SOURCE-INDEX.md)。其中 hostap 2.12 相关文件已随仓库保存；Linux Wireless 使用 `fetch-linux-master.sh` sparse-checkout 当前 `master`，也可用 `LINUX_REF=72d3fcf802c45d00b300f25b848a93c3a2bd7c7e` 复现文章校对快照。
 
 GitHub Pages 首页由 [docs/index.md](docs/index.md) 生成。
 

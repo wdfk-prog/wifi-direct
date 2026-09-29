@@ -25,7 +25,9 @@ nav:
   - 教程 11：Group Runtime 与数据通路: 11-group-runtime.md
   - 教程 12：Group Teardown: 12-group-teardown.md
   - 教程 13：Persistent Group 与 Invitation: 13-persistent-group.md
-  - 预研执行计划: wifi_direct_research_execution_plan.md
+  - 教程 14：Linux Wireless 控制面: 14-kernel-wireless-control-path.md
+  - 教程 15：Group 数据面 TX/RX: 15-group-data-plane-tx-rx.md
+
 markdown_extensions:
   - admonition
   - attr_list
