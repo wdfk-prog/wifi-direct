@@ -1,0 +1,39 @@
+site_name: Wi-Fi Direct Source Lab
+site_description: mac80211_hwsim + wpa_supplicant 2.12 源码阅读、双实例实验与 GDB 调试环境
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+
+nav:
+  - 首页: index.md
+  - 源码系列索引: 00-series-index.md
+  - 教程 01：实验环境: 01-wifi-direct-lab.md
+  - 教程 02：wpa_cli 发送 P2P_FIND: 02-wpa-cli-to-p2p-find.md
+  - 教程 03：wpa_supplicant 启动与 driver: 03-wpa-supplicant-startup-driver.md
+  - 教程 04：Interface 协议子系统初始化: 04-interface-protocol-init.md
+  - 教程 05：control socket 与 eloop: 05-ctrl-iface-eloop.md
+  - 教程 06：P2P_FIND 进入 P2P Core: 06-p2p-find-to-core.md
+  - 教程 07：第一次 P2P Scan: 07-p2p-first-scan.md
+  - 教程 08：Scan Result 到 P2P Peer: 08-scan-result-to-peer.md
+  - 教程 09：P2P_CONNECT 与 GO Negotiation: 09-p2p-connect-go-negotiation.md
+  - 教程 10：Group Formation 与安全建立: 10-group-formation-security.md
+  - 教程 11：Group Runtime 与数据通路: 11-group-runtime.md
+  - 教程 12：Group Teardown: 12-group-teardown.md
+  - 教程 13：Persistent Group 与 Invitation: 13-persistent-group.md
+  - 预研执行计划: wifi_direct_research_execution_plan.md
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+
+exclude_docs: |
+  README.md

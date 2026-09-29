@@ -1,0 +1,109 @@
+name: CD - Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build, validate and publish
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) ||
+      startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Prepare lowercase GHCR image name
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "${GITHUB_OUTPUT}"
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=ref,event=tag
+            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Build release image locally
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: |
+            wifi-direct-lab:release-validation
+            ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            USER_UID=1000
+            USER_GID=1000
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Validate release image before publishing
+        run: |
+          docker run --rm wifi-direct-lab:release-validation bash -lc '
+            set -euo pipefail
+
+            test "$(id -u)" = "1000"
+            test "$(id -un)" = "dev"
+
+            wpa_supplicant-2.12 -v 2>&1 | grep -F "wpa_supplicant v2.12"
+            wpa_cli-2.12 -v 2>&1 | grep -F "wpa_cli v2.12"
+
+            test -d "${WPA_SUPPLICANT_SRC}/.git"
+            test "$(git -C "${WPA_SUPPLICANT_SRC}" rev-parse HEAD)" = "${WPA_SUPPLICANT_COMMIT}"
+            git -C "${WPA_SUPPLICANT_SRC}" log -1 --oneline
+
+            test -f /opt/wifi-direct/src/wpa_supplicant-2.12/wpa_supplicant/compile_commands.json
+            test -x /usr/bin/gdb
+            test -x /usr/bin/gdbserver
+            sudo -n /usr/bin/gdbserver --version >/dev/null
+          '
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push validated tags
+        env:
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          set -euo pipefail
+
+          while IFS= read -r tag; do
+            [ -n "${tag}" ] || continue
+            docker push "${tag}"
+          done <<< "${IMAGE_TAGS}"

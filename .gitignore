@@ -1,0 +1,10 @@
+# Local Compose variables (UID/GID and optional image override).
+.env
+
+# Generated GitHub Pages / MkDocs output.
+site/
+.venv-docs/
+
+# Local/editor temporary files.
+*.log
+*~

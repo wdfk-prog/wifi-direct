@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../opt/wifi-direct/src/wpa_supplicant-2.12"
+		}
+	],
+	"settings": {}
+}

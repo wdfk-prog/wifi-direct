@@ -1,0 +1,71 @@
+services:
+  wifi-direct-dev:
+    build:
+      context: .
+      args:
+        # 将 Ubuntu Host 当前用户 UID/GID 传入 Dockerfile。
+        # 这样 bind mount 的 /workspace 中，新建文件通常不会变成 root:root。
+        USER_UID: ${LOCAL_UID:-1000}
+        USER_GID: ${LOCAL_GID:-1000}
+
+    # 默认本地构建为 wifi-direct-lab:2.12。
+    # 发布 GHCR 后可在 .env 中把 WIFI_DIRECT_IMAGE 改为远端 Image 地址。
+    image: ${WIFI_DIRECT_IMAGE:-wifi-direct-lab:2.12}
+    container_name: wifi-direct-dev
+
+    # mac80211_hwsim 创建的无线 interface 位于 Ubuntu Host 的 network namespace。
+    # host network 让 Container 与 Host 共用该 network namespace，
+    # 因此 Container 内的 iw / wpa_supplicant 可以看到同一组 hwsim interface。
+    network_mode: host
+
+    # 使用轻量 init 作为 PID 1，负责信号转发和僵尸进程回收。
+    init: true
+
+    # 保留交互式终端能力，方便 docker compose exec 进入 Container 学习和调试。
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
+
+    # NET_ADMIN：允许 wpa_supplicant / iw 执行需要管理权限的 nl80211 网络操作。
+    # NET_RAW：为 tcpdump 等 raw packet 操作保留能力。
+    # SYS_PTRACE：允许 GDB ptrace 被调试进程。
+    #
+    # 这里故意不授予 SYS_MODULE：Container 不加载/卸载 Host 的 mac80211_hwsim。
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+
+    # 仅用于专用学习/调试 VM，放宽默认 seccomp 对 GDB/ptrace 的限制。
+    # 不应直接复制到普通生产 Container。
+    security_opt:
+      - seccomp=unconfined
+
+    volumes:
+      # 将 Host 工程 /home/wdfk/share/wifi-direct 映射为 Container 的 /workspace。
+      - type: bind
+        source: .
+        target: /workspace
+
+      # 保存 VS Code Server，避免每次重建 Container 都重新安装 Server。
+      - type: volume
+        source: vscode-server
+        target: /home/dev/.vscode-server
+
+    environment:
+      # 统一告诉终端、VS Code 和教程源码/可执行文件位于哪里。
+      WPA_SUPPLICANT_SRC: /opt/wifi-direct/src/wpa_supplicant-2.12
+      WPA_SUPPLICANT_BIN: /usr/local/bin/wpa_supplicant-2.12
+      WPA_CLI_BIN: /usr/local/bin/wpa_cli-2.12
+
+      # 教程和调试命令统一使用 P2P_A / P2P_B，而不是在每个 Terminal 重复 export。
+      # 这里只提供逻辑默认值，不会重命名 Host kernel 创建的 WLAN interface。
+      # 如果 iw dev 显示的实际名称不同，可在 .env 中覆盖这两个值并重建 Container。
+      P2P_A: ${P2P_A:-wlan0}
+      P2P_B: ${P2P_B:-wlan1}
+
+    # 长期保持开发 Container 运行；不会自动启动 P2P 实验。
+    command: sleep infinity
+
+volumes:
+  vscode-server:

@@ -1,0 +1,24 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Linux",
+            // 与 Dockerfile 的构建工具链保持一致。
+            "compilerPath": "/usr/bin/gcc",
+
+            // Bear 根据真实 wpa_supplicant 2.12 build 生成，用于 F12/IntelliSense。
+            "compileCommands": "/opt/wifi-direct/src/wpa_supplicant-2.12/wpa_supplicant/compile_commands.json",
+
+            "browse": {
+                "path": [
+                    // wpa_supplicant/hostap 源码树。
+                    "/opt/wifi-direct/src/wpa_supplicant-2.12",
+                    // Ubuntu Container 的系统头文件。
+                    "/usr/include"
+                ],
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ]
+}

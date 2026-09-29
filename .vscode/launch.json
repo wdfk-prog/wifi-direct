@@ -1,0 +1,76 @@
+{
+    "version": "0.2.0",
+
+    "configurations": [
+        {
+            "name": "wpa_supplicant 2.12 - P2P",
+            "type": "cppdbg",
+            "request": "launch",
+
+            // 本地 GDB 只负责调试协议和加载符号，本身以普通 dev 用户运行。
+            "program": "/usr/local/bin/wpa_supplicant-2.12",
+            "cwd": "/opt/wifi-direct/src/wpa_supplicant-2.12/wpa_supplicant",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+
+            // root gdbserver 负责真正启动 wpa_supplicant。
+            // cppdbg 检测到 "Listening on port 2345" 后，GDB 再连接该 server。
+            "debugServerPath": "/usr/bin/sudo",
+            "debugServerArgs": "-n -- /usr/bin/gdbserver --once 127.0.0.1:2345 /usr/local/bin/wpa_supplicant-2.12 -Dnl80211 -i ${input:p2pInterface} -c ${input:p2pConfig} -dd -t",
+            "serverStarted": "Listening on port 2345",
+            "filterStdout": true,
+            "filterStderr": true,
+            "serverLaunchTimeout": 10000,
+
+            // GDB 与已经由 gdbserver 创建并暂停的进程建立连接。
+            "miDebuggerServerAddress": "127.0.0.1:2345",
+            "launchCompleteCommand": "exec-continue",
+            "stopAtEntry": false,
+
+            "setupCommands": [
+                {
+                    "description": "Enable GDB pretty printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ],
+
+    // A/B 共用上面唯一一份 debug configuration。
+    // F5 时先选择 WLAN interface，再选择与之对应的配置文件。
+    "inputs": [
+        {
+            "id": "p2pInterface",
+            "type": "pickString",
+            "description": "选择本次 F5 调试使用的 WLAN interface",
+            "options": [
+                {
+                    "label": "P2P A - wlan0",
+                    "value": "wlan0"
+                },
+                {
+                    "label": "P2P B - wlan1",
+                    "value": "wlan1"
+                }
+            ],
+            "default": "wlan0"
+        },
+        {
+            "id": "p2pConfig",
+            "type": "pickString",
+            "description": "选择与上一步 endpoint 对应的配置文件",
+            "options": [
+                {
+                    "label": "P2P A - p2p-a.conf",
+                    "value": "/workspace/config/p2p-a.conf"
+                },
+                {
+                    "label": "P2P B - p2p-b.conf",
+                    "value": "/workspace/config/p2p-b.conf"
+                }
+            ],
+            "default": "/workspace/config/p2p-a.conf"
+        }
+    ]
+}

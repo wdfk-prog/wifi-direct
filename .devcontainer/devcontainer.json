@@ -1,0 +1,36 @@
+{
+    // VS Code 左下角 Remote 指示器 -> Reopen in Container 后显示的环境名称。
+    "name": "Wi-Fi Direct / wpa_supplicant 2.12",
+
+    // Dev Containers 不再单独创建 Docker 配置，而是复用仓库根目录的 compose.yaml。
+    "dockerComposeFile": "../compose.yaml",
+    "service": "wifi-direct-dev",
+
+    // Host 的 /home/wdfk/share/wifi-direct 通过 Compose 映射为 /workspace。
+    "workspaceFolder": "/workspace",
+
+    // 关闭 VS Code 窗口时不自动 docker compose down，便于保留实验进程。
+    "shutdownAction": "none",
+
+    // VS Code Extension Host 使用 Dockerfile 中准备的普通用户 dev。
+    "remoteUser": "dev",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // 提供 C/C++ IntelliSense、F12、launch.json 和 GDB 调试支持。
+                "ms-vscode.cpptools",
+
+                // 在 Dev Container 的 Extension Host 中自动安装注释翻译扩展。
+                "intellsmi.comment-translate"
+            ],
+            "settings": {
+                // Bear 在 Image build 时生成该数据库；C/C++ 扩展据此获得真实 include/define/compile flags。
+                "C_Cpp.default.compileCommands": "/opt/wifi-direct/src/wpa_supplicant-2.12/wpa_supplicant/compile_commands.json",
+
+                // Comment Translate 默认翻译为简体中文；仍可在 VS Code 设置中覆盖。
+                "commentTranslate.targetLanguage": "zh-CN"
+            }
+        }
+    }
+}

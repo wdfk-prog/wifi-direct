@@ -1,0 +1,10 @@
+{
+    // 默认使用 Bear 生成的真实编译数据库，避免手工维护大量 includePath/defines。
+    "C_Cpp.default.compileCommands": "/opt/wifi-direct/src/wpa_supplicant-2.12/wpa_supplicant/compile_commands.json",
+
+    // 额外提供源码与系统头文件的 browse 根目录，方便全局符号搜索。
+    "C_Cpp.default.browse.path": [
+        "/opt/wifi-direct/src/wpa_supplicant-2.12",
+        "/usr/include"
+    ]
+}
